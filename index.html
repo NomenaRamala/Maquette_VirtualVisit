@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Visite 3D Immo - Démo</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #instructions {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center; color: white; font-family: sans-serif;
+            background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px;
+            cursor: pointer; z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div id="instructions">
+        <h1>Cliquez ici pour commencer la visite</h1>
+        <p>Souris = Regarder autour<br>Flèches / ZQSD = Se déplacer</p>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+
+        // 1. SCÈNE ET CAMÉRA
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xeeeeee); // Couleur du ciel (gris clair)
+        // Ajout d'un brouillard pour l'immersion et cacher le fond
+        scene.fog = new THREE.Fog(0xeeeeee, 0, 50); 
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // Position de départ (Y=1.7 correspond à la hauteur des yeux ~1m70)
+        camera.position.set(0, 1.7, 5); 
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true; // Activer les ombres
+        document.body.appendChild(renderer.domElement);
+
+        // 2. LUMIÈRES
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); // Lumière douce partout
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        dirLight.position.set(10, 20, 10);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        // 3. CHARGEMENT DU MODÈLE BLENDER
+        const loader = new GLTFLoader();
+        loader.load('maison.glb', function (gltf) {
+            const model = gltf.scene;
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+            scene.add(model);
+        }, undefined, function (error) {
+            console.error(error);
+        });
+
+        // 4. CONTRÔLES (FPS - First Person)
+        const controls = new PointerLockControls(camera, document.body);
+        const instructions = document.getElementById('instructions');
+
+        instructions.addEventListener('click', function () {
+            controls.lock(); // Capture la souris
+        });
+
+        controls.addEventListener('lock', function () {
+            instructions.style.display = 'none';
+        });
+
+        controls.addEventListener('unlock', function () {
+            instructions.style.display = 'block';
+        });
+
+        // LOGIQUE DE DÉPLACEMENT
+        let moveForward = false;
+        let moveBackward = false;
+        let moveLeft = false;
+        let moveRight = false;
+
+        const onKeyDown = function (event) {
+            switch (event.code) {
+                case 'ArrowUp': case 'KeyW': moveForward = true; break;
+                case 'ArrowLeft': case 'KeyA': moveLeft = true; break;
+                case 'ArrowDown': case 'KeyS': moveBackward = true; break;
+                case 'ArrowRight': case 'KeyD': moveRight = true; break;
+            }
+        };
+
+        const onKeyUp = function (event) {
+            switch (event.code) {
+                case 'ArrowUp': case 'KeyW': moveForward = false; break;
+                case 'ArrowLeft': case 'KeyA': moveLeft = false; break;
+                case 'ArrowDown': case 'KeyS': moveBackward = false; break;
+                case 'ArrowRight': case 'KeyD': moveRight = false; break;
+            }
+        };
+
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('keyup', onKeyUp);
+
+        // Boucle d'animation
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        let prevTime = performance.now();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = performance.now();
+            // Delta time pour que la vitesse soit la même peu importe les FPS
+            const delta = (time - prevTime) / 1000; 
+
+            if (controls.isLocked === true) {
+                // Ralentissement (frottement)
+                velocity.x -= velocity.x * 10.0 * delta;
+                velocity.z -= velocity.z * 10.0 * delta;
+
+                direction.z = Number(moveForward) - Number(moveBackward);
+                direction.x = Number(moveRight) - Number(moveLeft);
+                direction.normalize(); // Assure une vitesse constante en diagonale
+
+                if (moveForward || moveBackward) velocity.z -= direction.z * 40.0 * delta; // 40.0 = Vitesse
+                if (moveLeft || moveRight) velocity.x -= direction.x * 40.0 * delta;
+
+                controls.moveRight(-velocity.x * delta);
+                controls.moveForward(-velocity.z * delta);
+                
+                // HACK: Garder les pieds au sol (pas de collision réelle pour la démo)
+                // On force la caméra à rester à 1.7m de hauteur
+                camera.position.y = 1.7; 
+            }
+
+            prevTime = time;
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Gérer le redimensionnement de la fenêtre
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+</html>
