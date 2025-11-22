@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ViLo | L'immobilier 3D</title>
+    <style>
+        /* Import ou déclaration de la police Glitz */
+        @font-face {
+            font-family: 'Glitz';
+            src: url('fonts/Glitz.woff2') format('woff2'),
+                 url('fonts/Glitz.woff') format('woff'),
+                 url('fonts/Glitz.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        
+        /* Alternative : Si la police Glitz n'est pas disponible, on peut utiliser une police similaire via Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Cormorant+Garamond:wght@600;700&display=swap');
+        /* Variables et Base */
+        :root {
+            --primary-color: #1a2332; /* Bleu-gris foncé sobre */
+            --accent-color: #2c5f7c; /* Bleu discret pour les accents */
+            --secondary-color: #ffffff; /* Blanc pur */
+            --text-color: #2d3436; /* Gris très foncé pour le texte */
+            --text-light: #636e72; /* Gris moyen pour le texte secondaire */
+            --font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 0;
+            background-color: #fafafa;
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* En-tête (Header) */
+        header {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 6%;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: var(--primary-color);
+            text-transform: uppercase;
+        }
+
+        header nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+            margin-right: 30px;
+        }
+
+        header nav a:hover {
+            color: var(--accent-color);
+        }
+
+        header nav .nav-button {
+            padding: 10px 24px;
+            border: 1px solid var(--text-color);
+            border-radius: 2px;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        header nav .nav-button:hover {
+            background-color: var(--text-color);
+            color: white;
+        }
+
+        /* Section Héro (La plus importante) */
+        .hero {
+            height: 90vh;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(rgba(26, 35, 50, 0.4), rgba(44, 95, 124, 0.5)), url('room.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            padding: 40px;
+            position: relative;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, #fafafa);
+        }
+
+        .hero h1 {
+            font-family: 'Glitz', 'Playfair Display', 'Cormorant Garamond', serif;
+            font-size: 8em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            letter-spacing: 4px;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5),
+                         0 2px 10px rgba(0, 0, 0, 0.3),
+                         0 0 40px rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 1;
+            color: #ffffff;
+            line-height: 1.1;
+            text-transform: none;
+        }
+
+        .hero p {
+            font-size: 1.15em;
+            margin-bottom: 50px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            max-width: 700px;
+            line-height: 1.8;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Bouton d'Action (CTA) */
+        .cta-button {
+            background-color: transparent;
+            color: white;
+            padding: 14px 40px;
+            font-size: 0.95em;
+            border: 1px solid white;
+            border-radius: 2px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-button:hover {
+            background-color: white;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Section Caractéristiques */
+        .features {
+            display: flex;
+            justify-content: center;
+            padding: 120px 6%;
+            gap: 80px;
+            background-color: white;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            max-width: 320px;
+            text-align: left;
+        }
+
+        .feature-item h3 {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            font-weight: 400;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .feature-item p {
+            color: var(--text-light);
+            font-size: 0.95em;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 6%;
+            background-color: var(--primary-color);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85em;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 968px) {
+            .features {
+                flex-direction: column;
+                gap: 50px;
+                padding: 80px 6%;
+            }
+
+            .hero h1 {
+                font-size: 5em;
+                letter-spacing: 2px;
+            }
+
+            .hero p {
+                font-size: 1em;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .hero h1 {
+                font-size: 4em;
+                letter-spacing: 1px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">ViLo</div>
+        <nav>
+            <a href="#">Agences</a>
+            <a href="#" class="nav-button">Essai Gratuit</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>ViLo</h1>
+            <p>La première plateforme immobilière qui vous permet de visiter chaque pièce à l'échelle,<br> grâce au scan HDRI, directement depuis votre navigateur.</p>
+            <a href="index.html" class="cta-button" id="launchDemo">Lancer la Visite Démo Immédiatement</a>
+        </section>
+
+        <section class="features">
+            <div class="feature-item">
+                <h3>Transparence Totale</h3>
+                <p>Jugez l'espace réel, les hauteurs sous plafond et l'agencement sans mauvaise surprise.</p>
+            </div>
+            <div class="feature-item">
+                <h3>Économie de Temps</h3>
+                <p>Éliminez 90% des visites physiques inutiles pour vous et pour l'agent immobilier.</p>
+            </div>
+            <div class="feature-item">
+                <h3>Photorealisme HDRI</h3>
+                <p>Un éclairage et des reflets fidèles grâce à la technologie HDRI pour une immersion parfaite.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        &copy; 2025 ViLo. L'avenir de l'immobilier.
+    </footer>
+
+    <script>
+        // Ce script assure que le bouton redirige vers votre page de démo
+        // Vous devez nommer votre fichier de démo 3D "index.html" (si vous avez suivi l'exemple de code précédent).
+        document.getElementById('launchDemo').addEventListener('click', function(e) {
+            // Dans un vrai projet, ceci lancerait la démo. 
+            // Pour le pitch, assurez-vous que la cible (index.html) est correcte.
+            console.log("Lancement de la démo 3D...");
+            // e.preventDefault(); // Retirez cette ligne si vous voulez que le lien fonctionne réellement
+        });
+    </script>
+</body>
+</html>
